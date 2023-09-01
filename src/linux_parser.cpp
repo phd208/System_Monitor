@@ -35,13 +35,50 @@ namespace {
     return jiffiesSum;
   }
 
-  std::istringstream CreateStringStream(const std::string & path) {
+  std::istringstream CreateStringStream(const string & path) {
     string line;
     std::ifstream stream(path);
     if (stream.is_open()) {
       std::getline(stream, line);
     }
     return std::istringstream(line);
+  }
+
+  string FindKeyInStream(const string & path, const string & searchKey, string valueType) {
+    string line, key;
+    
+    string sValue;
+    int iValue;
+    long lValue;
+
+    std::ifstream stream(path);
+    if (stream.is_open()) {
+      while (std::getline(stream, line)) {
+        std::istringstream linestream(line);
+        linestream >> key;
+
+        if (key == searchKey) {
+          if (valueType == "string") {
+            linestream >> sValue;
+          } else if (valueType == "int") {
+            linestream >> iValue; 
+          } else {
+            linestream >> lValue;
+          }
+          break;
+        }
+
+      }
+    }
+
+    if (valueType == "string") {
+      return sValue;
+    } else if (valueType == "int") {
+      return to_string(iValue);
+    } else {
+      return to_string(lValue);
+    }
+
   }
 }
 
@@ -267,4 +304,21 @@ string LinuxParser::User(int pid[[maybe_unused]]) { return string(); }
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
+long LinuxParser::UpTime(int pid) { 
+  string value;
+  vector<string> values;
+  long startTime;
+  std::istringstream linestream = CreateStringStream(kProcDirectory + std::to_string(pid) + kStatFilename);
+  while (linestream >> value) {
+    values.push_back(value);
+  }
+
+  try {
+    startTime = stol(values[21]) / sysconf(_SC_CLK_TCK);
+  } catch (...) {
+    startTime = 0;
+  }
+
+  return startTime; 
+  
+}
