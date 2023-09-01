@@ -1,6 +1,7 @@
 #include "ncurses_display.h"
 #include "system.h"
 #include "format.h"
+#include "linux_parser.h"
 
 #include <iostream>
 #include <curses.h>
