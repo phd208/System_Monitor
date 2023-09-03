@@ -17,15 +17,6 @@ using std::to_string;
 int main() {
   System system;
   NCursesDisplay::Display(system);
-
-  // std::vector<Process>& processes = system.Processes();
-
-  // for (auto p : processes) {
-  //   std::cout << p.User().c_str() << "\n";
-  // }
-
-  
-
 }
 
 
