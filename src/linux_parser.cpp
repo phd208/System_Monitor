@@ -237,6 +237,6 @@ long LinuxParser::UpTime(int pid) {
     startTime = 0;
   }
 
-  return startTime; 
+  return LinuxParser::UpTime() - startTime; 
   
 }

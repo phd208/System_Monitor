@@ -18,10 +18,9 @@ Process::Process(int pid) {
     user = LinuxParser::User(pid);
     uptime = LinuxParser::UpTime(pid);
 
-    long seconds = LinuxParser::UpTime() - uptime;
     long total = LinuxParser::ActiveJiffies(pid);
-    if (seconds != 0) {
-        cpu = static_cast<float>(total) / static_cast<float>(seconds);
+    if (uptime != 0) {
+        cpu = static_cast<float>(total) / static_cast<float>(uptime);
     } else {
         cpu = 0.0f;
     }
