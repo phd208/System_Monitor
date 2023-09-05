@@ -1,4 +1,3 @@
-// #include <dirent.h>
 #include <unistd.h>
 #include <sstream>
 #include <string>
@@ -61,7 +60,7 @@ string LinuxParser::OperatingSystem() {
   return os;
 }
 
-// DONE: An example of how to read data from the filesystem
+// Read data from the filesystem
 string LinuxParser::Kernel() {
   string os, kernel, version;
   std::istringstream linestream(GetLine(kProcDirectory + kVersionFilename));
