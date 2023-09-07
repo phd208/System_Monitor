@@ -85,18 +85,16 @@ vector<int> LinuxParser::Pids() {
 // Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() { 
   string path = kProcDirectory + kMeminfoFilename;
-  string memTotal = "MemTotal:";
-  string memAvail = "MemAvailable:";
   string key;
-  float total, available;
+  float total, free;
 
-  std::istringstream linestreamTotal(GetLine(path, memTotal));
+  std::istringstream linestreamTotal(GetLine(path, "MemTotal:"));
   linestreamTotal >> key >> total;
 
-  std::istringstream linestreamAvail(GetLine(path, memAvail));
-  linestreamAvail >> key >> available;
+  std::istringstream linestreamFree(GetLine(path, "MemFree:"));
+  linestreamFree >> key >> free;
   
-  return (total - available) / total; 
+  return (total - free) / total; 
 }
 
 // Read and return the system uptime
@@ -191,7 +189,7 @@ string LinuxParser::Ram(int pid) {
       linestream >> key;
       if (key == "VmSize:") {
         linestream >> ram;
-        ram /= 1000;
+        ram /= 1024;
         mem = to_string(ram);
       }
     }
@@ -223,19 +221,26 @@ string LinuxParser::User(int pid) {
 // Read and return the uptime of a process
 long LinuxParser::UpTime(int pid) { 
   string value;
-  vector<string> values;
-  long startTime;
-  std::istringstream linestream(GetLine(kProcDirectory + std::to_string(pid) + kStatFilename));
-  while (linestream >> value) {
-    values.push_back(value);
+  long startTime = 0;
+
+  std::istringstream linestream(GetLine(kProcDirectory + to_string(pid) + kStatFilename));
+
+  // Skipping the first 21 values
+  for (int i = 0; i < 21 && (linestream >> value); i++) {};
+
+  // Reading the 22nd value
+  if (linestream >> value) {
+    try {
+      startTime = stol(value) / sysconf(_SC_CLK_TCK);
+    } catch (const std::invalid_argument&) {
+      std::cerr << "Error: Invalid data format in /proc file." << std::endl;
+    } catch (const std::out_of_range&) {
+      std::cerr << "Error: Number out of range in /proc file." << std::endl;
+    } catch (...) {
+      std:: cerr << "Error: Unkown exception while parsing /proc file." << std::endl;
+    }
   }
 
-  try {
-    startTime = stol(values[21]) / sysconf(_SC_CLK_TCK);
-  } catch (...) {
-    startTime = 0;
-  }
-
-  return LinuxParser::UpTime() - startTime; 
+  return LinuxParser::UpTime() - startTime;
   
 }

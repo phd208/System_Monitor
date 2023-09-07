@@ -30,8 +30,8 @@ std::string NCursesDisplay::ProgressBar(float percent) {
 
 void NCursesDisplay::DisplaySystem(System& system, WINDOW* window) {
   int row{0};
-  mvwprintw(window, ++row, 2, "OS: %s", ("OS: " + system.OperatingSystem()).c_str());
-  mvwprintw(window, ++row, 2, "Kernel: %s", ("Kernel: " + system.Kernel()).c_str());
+  mvwprintw(window, ++row, 2, "OS: %s", (system.OperatingSystem()).c_str());
+  mvwprintw(window, ++row, 2, "Kernel: %s", (system.Kernel()).c_str());
   mvwprintw(window, ++row, 2, "CPU: ");
   wattron(window, COLOR_PAIR(1));
   mvwprintw(window, row, 10, "%s", "");
